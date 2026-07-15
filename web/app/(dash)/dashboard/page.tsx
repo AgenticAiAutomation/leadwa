@@ -127,6 +127,26 @@ export default function DashboardPage() {
     router.push('/login');
   };
 
+  const downloadQR = async (linkId: string, slug: string, format: 'png' | 'svg') => {
+    try {
+      const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002'}/links/${linkId}/qr?format=${format}`;
+      const response = await fetch(url, { credentials: 'include' });
+      if (!response.ok) throw new Error('Failed to download QR code');
+
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = `leadwa-${slug}-qr.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      alert('Failed to download QR code');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -181,6 +201,7 @@ export default function DashboardPage() {
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Source</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Last 7d</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">QR Code</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                   </tr>
                 </thead>
@@ -214,6 +235,21 @@ export default function DashboardPage() {
                         ) : (
                           <span className="text-xs text-gray-400">—</span>
                         )}
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <div className="flex flex-col gap-1">
+                          <img
+                            src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002'}/links/${link.id}/qr?format=svg`}
+                            alt="QR Code"
+                            className="w-16 h-16 border border-gray-200 rounded"
+                          />
+                          <button
+                            onClick={() => downloadQR(link.id, link.slug, 'png')}
+                            className="text-xs text-blue-600 hover:text-blue-700"
+                          >
+                            Download for print
+                          </button>
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-sm">
                         <button

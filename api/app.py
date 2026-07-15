@@ -4,6 +4,7 @@ from auth import router as auth_router
 from links import router as links_router
 from events import router as events_router
 from stats import router as stats_router
+from qr import router as qr_router
 
 
 def create_app() -> FastAPI:
@@ -28,5 +29,6 @@ def create_app() -> FastAPI:
     app.include_router(links_router)
     app.include_router(events_router)
     app.include_router(stats_router)
+    app.include_router(qr_router)
 
     return app
