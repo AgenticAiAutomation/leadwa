@@ -5,3 +5,12 @@ compatibility_date = "2024-01-01"
 [[routes]]
 pattern = "leadwa.link/*"
 zone_name = "leadwa.link"
+
+# KV namespace binding
+[[kv_namespaces]]
+binding = "LINKS"
+id = "placeholder"  # Set via wrangler.toml.local or --kv-namespace-id
+
+# Env vars (set via wrangler secret or in dashboard)
+# BEACON_SECRET - shared secret for click beacon API
+# API_BASE_URL - base URL for the API (e.g., https://leadwa.co/api)

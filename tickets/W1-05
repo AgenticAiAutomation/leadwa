@@ -1,0 +1,6 @@
+## W1-05 — Worker redirect hot path
+`worker/src/index.ts`:
+- GET /{slug}: KV lookup. Found & active → 302 to `https://wa.me/{n}?text={urlencode(t)}`. Missing/inactive → minimal branded 404 (inline HTML, <2KB).
+- Fire-and-forget click beacon: `ctx.waitUntil(fetch(API/events/click, POST {l, country: cf.country, device: UA mobile/desktop, ref}))` with shared-secret header.
+- Never await the beacon before redirecting. Total added latency budget: 0ms over KV read.
+**Accept:** `wrangler dev` redirects a seeded slug to wa.me in <50ms locally; killing the API does not break redirects.
