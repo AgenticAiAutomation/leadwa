@@ -1,0 +1,4 @@
+## W1-06 — Click ingestion + counts
+- POST /events/click (shared-secret header, no user auth): insert into `clicks`. Reject bad secret with 401.
+- GET /links/{id}/stats: total clicks, clicks last 7 days (per day), top country, mobile/desktop split. Plain SQL aggregates — no rollup tables yet.
+**Accept:** seeded clicks return correct aggregates via curl.

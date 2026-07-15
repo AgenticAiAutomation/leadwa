@@ -40,6 +40,7 @@ uvicorn main:app --host 127.0.0.1 --port 5002
 - `CF_ACCOUNT_ID` - Cloudflare account ID (required for KV sync)
 - `CF_KV_NAMESPACE_ID` - Cloudflare KV namespace ID for `LINKS` (required for KV sync)
 - `CF_API_TOKEN` - Cloudflare API token with KV write permissions (required for KV sync)
+- `BEACON_SECRET` - Shared secret for worker click beacon authentication (default: `dev-beacon-secret`)
 
 ## API Endpoints
 
@@ -59,3 +60,9 @@ uvicorn main:app --host 127.0.0.1 --port 5002
 - `DELETE /links/{id}` - Soft delete a link (sets active=false)
 
 All link create/update/delete operations automatically sync to Cloudflare KV with key=slug, value=JSON.
+
+### Events (beacon only, shared secret auth)
+- `POST /events/click` - Ingest click event from worker (requires `x-beacon-secret` header)
+
+### Stats (require authentication)
+- `GET /links/{id}/stats` - Get link statistics (total clicks, last 7 days per day, top country, mobile/desktop split)
