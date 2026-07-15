@@ -36,6 +36,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     loadLinks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadLinks = async () => {
@@ -110,7 +111,7 @@ export default function DashboardPage() {
     try {
       await api.deleteLink(id);
       loadLinks();
-    } catch (err) {
+    } catch {
       alert('Failed to delete link');
     }
   };
@@ -142,7 +143,7 @@ export default function DashboardPage() {
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(blobUrl);
-    } catch (err) {
+    } catch {
       alert('Failed to download QR code');
     }
   };
@@ -238,6 +239,7 @@ export default function DashboardPage() {
                       </td>
                       <td className="px-4 py-3 text-sm">
                         <div className="flex flex-col gap-1">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002'}/links/${link.id}/qr?format=svg`}
                             alt="QR Code"
