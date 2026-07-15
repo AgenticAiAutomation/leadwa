@@ -33,6 +33,18 @@ uvicorn main:app --host 127.0.0.1 --port 5002
 - Applied migrations are tracked in the `schema_migrations` table
 - Running migrations multiple times is safe (idempotent)
 
+## Environment Variables
+
+- `DATABASE_URL` - PostgreSQL connection string (default: `postgresql://postgres:postgres@localhost:5432/leadwa`)
+- `SECRET_KEY` - JWT signing secret (default: `dev-secret-change-in-production` - **must change in production**)
+
 ## API Endpoints
 
+### Health
 - `GET /healthz` - Health check endpoint
+
+### Auth
+- `POST /auth/signup` - Create new user account (returns JWT in httpOnly cookie)
+- `POST /auth/login` - Login with email/password (returns JWT in httpOnly cookie)
+- `POST /auth/logout` - Clear auth cookie
+- `GET /auth/me` - Get current user info (requires auth cookie)

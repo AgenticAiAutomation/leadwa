@@ -1,0 +1,3 @@
+## W1-03 — Auth
+Email+password signup/login in `api/`. JWT in httpOnly cookie, 30-day expiry. Endpoints: POST /auth/signup, POST /auth/login, POST /auth/logout, GET /auth/me. bcrypt hashing. One guard: reject duplicate email with 409.
+**Accept:** curl flow signup→login→me works; wrong password → 401.
