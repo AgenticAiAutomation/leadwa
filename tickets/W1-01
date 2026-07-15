@@ -1,0 +1,7 @@
+## W1-01 — Scaffold the monorepo
+Create the repo structure from CLAUDE.md: `worker/`, `api/`, `web/`, `infra/`, `tickets/`.
+- `api/`: FastAPI app factory, `/healthz` returning `{"ok": true}`, uvicorn entry, requirements.txt (fastapi, uvicorn, psycopg[binary], python-jose, passlib[bcrypt], httpx).
+- `worker/`: wrangler.toml (name `leadwa-redirect`, route `leadwa.link/*`), `src/index.ts` responding "leadwa" to `/` for now.
+- `web/`: Next.js 14 App Router via create-next-app defaults, TypeScript, Tailwind. Landing page placeholder h1.
+- `infra/`: `leadwa-api.service` systemd unit (port 5002, user www-data, WorkingDirectory /var/www/leadwa/api), `nginx-leadwa.conf` for api.leadwa.co → 127.0.0.1:5002.
+**Accept:** `uvicorn` serves /healthz locally; `wrangler dev` serves /; `npm run build` passes in web/.

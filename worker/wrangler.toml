@@ -1,0 +1,7 @@
+name = "leadwa-redirect"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+[[routes]]
+pattern = "leadwa.link/*"
+zone_name = "leadwa.link"
