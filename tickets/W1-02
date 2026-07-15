@@ -1,0 +1,8 @@
+## W1-02 — Database schema v1
+Create `api/migrations/001_init.sql` and a tiny `migrate.py` (runs unapplied .sql files, records in `schema_migrations`).
+Tables (YAGNI — exactly these):
+- `users` (id uuid pk, email citext unique, password_hash, business_name, whatsapp_number, created_at)
+- `links` (id uuid pk, user_id fk, slug text unique, dest_number text, prefill_text text, title text, source_tag text, active bool default true, created_at, updated_at)
+- `clicks` (id bigserial pk, link_id fk, ts timestamptz, country text, device text, referrer text) — partition later, not now
+- Indexes: links(slug), links(user_id), clicks(link_id, ts)
+**Accept:** `python migrate.py` on a fresh `leadwa` db creates all tables; running twice is a no-op.
