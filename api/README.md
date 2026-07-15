@@ -37,6 +37,9 @@ uvicorn main:app --host 127.0.0.1 --port 5002
 
 - `DATABASE_URL` - PostgreSQL connection string (default: `postgresql://postgres:postgres@localhost:5432/leadwa`)
 - `SECRET_KEY` - JWT signing secret (default: `dev-secret-change-in-production` - **must change in production**)
+- `CF_ACCOUNT_ID` - Cloudflare account ID (required for KV sync)
+- `CF_KV_NAMESPACE_ID` - Cloudflare KV namespace ID for `LINKS` (required for KV sync)
+- `CF_API_TOKEN` - Cloudflare API token with KV write permissions (required for KV sync)
 
 ## API Endpoints
 
@@ -48,3 +51,11 @@ uvicorn main:app --host 127.0.0.1 --port 5002
 - `POST /auth/login` - Login with email/password (returns JWT in httpOnly cookie)
 - `POST /auth/logout` - Clear auth cookie
 - `GET /auth/me` - Get current user info (requires auth cookie)
+
+### Links (all require authentication)
+- `POST /links` - Create a new link (auto-generates 6-char base58 slug or accepts custom slug)
+- `GET /links` - List all links for authenticated user
+- `PATCH /links/{id}` - Update a link (title, dest_number, prefill_text, source_tag)
+- `DELETE /links/{id}` - Soft delete a link (sets active=false)
+
+All link create/update/delete operations automatically sync to Cloudflare KV with key=slug, value=JSON.

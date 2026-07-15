@@ -1,0 +1,5 @@
+## W1-04 — Links CRUD + KV sync
+Endpoints (auth required): POST /links, GET /links (own only), PATCH /links/{id}, DELETE /links/{id} (soft: active=false).
+- Slug: 6-char base58 auto, or custom slug if provided (validate [a-z0-9-]{3,32}, unique).
+- On every create/update/delete: push to Cloudflare KV via REST API (`LINKS` namespace): key=slug, value=JSON {n: dest_number, t: prefill_text, a: active, l: link_id}. Env vars: CF_ACCOUNT_ID, CF_KV_NAMESPACE_ID, CF_API_TOKEN.
+**Accept:** create a link via curl → key visible in KV (wrangler kv key get); patch text → KV updated.

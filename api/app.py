@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from auth import router as auth_router
+from links import router as links_router
 
 
 def create_app() -> FastAPI:
@@ -10,7 +11,8 @@ def create_app() -> FastAPI:
     def healthz():
         return {"ok": True}
 
-    # Auth endpoints
+    # Routers
     app.include_router(auth_router)
+    app.include_router(links_router)
 
     return app
