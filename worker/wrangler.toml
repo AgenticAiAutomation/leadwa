@@ -9,7 +9,7 @@ zone_name = "leadwa.link"
 # KV namespace binding
 [[kv_namespaces]]
 binding = "LINKS"
-id = "placeholder"  # Set via wrangler.toml.local or --kv-namespace-id
+id = "59eb6eb4d4b0437699458508443ee1a5"  # Set via wrangler.toml.local or --kv-namespace-id
 
 # Env vars (set via wrangler secret or in dashboard)
 # BEACON_SECRET - shared secret for click beacon API

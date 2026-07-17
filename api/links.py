@@ -7,10 +7,12 @@ import random
 import re
 from datetime import datetime
 from typing import Optional, List
+from collections import defaultdict
+from time import time
 
 import httpx
 import psycopg
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel, field_validator
 
 from auth import get_current_user_id
@@ -24,6 +26,12 @@ CF_API_TOKEN = os.getenv("CF_API_TOKEN", "")
 
 # Base58 alphabet (no 0, O, I, l for readability)
 BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+
+# Simple in-memory rate limiter for anonymous links
+# Format: {ip: [(timestamp, count), ...]}
+_rate_limit_store: dict = defaultdict(list)
+RATE_LIMIT_MAX = 20  # Max links per IP per hour
+RATE_LIMIT_WINDOW = 3600  # 1 hour in seconds
 
 router = APIRouter(prefix="/links", tags=["links"])
 
@@ -64,10 +72,40 @@ class LinkResponse(BaseModel):
     updated_at: str
 
 
+class AnonymousLinkCreate(BaseModel):
+    dest_number: str
+    prefill_text: Optional[str] = None
+    title: Optional[str] = None
+
+
+class AnonymousLinkResponse(BaseModel):
+    slug: str
+    short_url: str
+
+
 # Helpers
 def generate_slug() -> str:
     """Generate a 6-character base58 slug."""
     return "".join(random.choices(BASE58_ALPHABET, k=6))
+
+
+def check_rate_limit(ip: str) -> bool:
+    """Check if IP has exceeded rate limit. Returns True if allowed, False if rate limited."""
+    now = time()
+    cutoff = now - RATE_LIMIT_WINDOW
+
+    # Clean old entries for this IP
+    _rate_limit_store[ip] = [(ts, count) for ts, count in _rate_limit_store[ip] if ts > cutoff]
+
+    # Count total links in the window
+    total = sum(count for _, count in _rate_limit_store[ip])
+
+    if total >= RATE_LIMIT_MAX:
+        return False
+
+    # Add this request
+    _rate_limit_store[ip].append((now, 1))
+    return True
 
 
 async def sync_to_kv(slug: str, link_id: str, dest_number: str, prefill_text: Optional[str], active: bool):
@@ -97,6 +135,47 @@ async def sync_to_kv(slug: str, link_id: str, dest_number: str, prefill_text: Op
 
 
 # Endpoints
+@router.post("/anonymous", response_model=AnonymousLinkResponse, status_code=201)
+async def create_anonymous_link(link: AnonymousLinkCreate, request: Request):
+    """Create an anonymous link without authentication."""
+    # Rate limiting
+    client_ip = request.client.host if request.client else "unknown"
+    if not check_rate_limit(client_ip):
+        raise HTTPException(status_code=429, detail="Rate limit exceeded. Max 20 links per hour.")
+
+    with psycopg.connect(DB_URL) as conn:
+        with conn.cursor() as cur:
+            # Generate unique slug
+            slug = None
+            for _ in range(10):
+                candidate = generate_slug()
+                cur.execute("SELECT id FROM links WHERE slug = %s", (candidate,))
+                if not cur.fetchone():
+                    slug = candidate
+                    break
+
+            if not slug:
+                raise HTTPException(status_code=500, detail="Failed to generate unique slug")
+
+            # Create link with user_id = NULL
+            cur.execute(
+                """
+                INSERT INTO links (user_id, slug, title, dest_number, prefill_text)
+                VALUES (%s, %s, %s, %s, %s)
+                RETURNING id
+                """,
+                (None, slug, link.title or "Anonymous Link", link.dest_number, link.prefill_text)
+            )
+            link_id = cur.fetchone()[0]
+            conn.commit()
+
+            # Sync to KV
+            await sync_to_kv(slug, str(link_id), link.dest_number, link.prefill_text, True)
+
+            short_url = f"https://leadwa.link/{slug}"
+            return AnonymousLinkResponse(slug=slug, short_url=short_url)
+
+
 @router.post("", response_model=LinkResponse, status_code=201)
 async def create_link(link: LinkCreate, user_id: str = Depends(get_current_user_id)):
     """Create a new link."""

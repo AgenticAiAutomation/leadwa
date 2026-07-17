@@ -32,15 +32,6 @@ export default function FreeLinkGenerator() {
     }
   }, []);
 
-  const generateSlug = () => {
-    const alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-    let slug = '';
-    for (let i = 0; i < 6; i++) {
-      slug += alphabet[Math.floor(Math.random() * alphabet.length)];
-    }
-    return slug;
-  };
-
   const handleGenerate = async () => {
     setError('');
 
@@ -54,11 +45,29 @@ export default function FreeLinkGenerator() {
     setIsGenerating(true);
 
     try {
-      const slug = generateSlug();
-      const shortUrl = `https://leadwa.link/${slug}`;
+      // Call anonymous link creation API
+      const response = await fetch('https://api.leadwa.co/links/anonymous', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          dest_number: cleaned,
+          prefill_text: prefillMessage || undefined,
+          title: 'Free Link',
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.detail || 'Failed to create link');
+      }
+
+      const data = await response.json();
+      const { slug, short_url } = data;
 
       // Generate QR code as data URL
-      const qrDataUrl = await QRCode.toDataURL(shortUrl, {
+      const qrDataUrl = await QRCode.toDataURL(short_url, {
         errorCorrectionLevel: 'H',
         width: 512,
         margin: 2,
@@ -70,7 +79,7 @@ export default function FreeLinkGenerator() {
 
       const link: GeneratedLink = {
         slug,
-        shortUrl,
+        shortUrl: short_url,
         qrDataUrl,
         whatsappNumber: cleaned,
         prefillMessage: prefillMessage || '',
@@ -80,8 +89,9 @@ export default function FreeLinkGenerator() {
       // Save to localStorage
       localStorage.setItem('leadwa_anonymous_link', JSON.stringify(link));
       setGeneratedLink(link);
-    } catch {
-      setError('Failed to generate link. Please try again.');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to generate link. Please try again.';
+      setError(message);
     } finally {
       setIsGenerating(false);
     }
