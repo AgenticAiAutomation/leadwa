@@ -11,6 +11,16 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        paper: "#FAF7F2",
+        ink: "#1C1917",
+        terracotta: "#C2410C",
+        "terracotta-light": "#EA580C",
+        "bottle-green": "#166534",
+        "bottle-green-light": "#16A34A",
+      },
+      fontFamily: {
+        headline: ["Fraunces", "serif"],
+        body: ["Instrument Sans", "system-ui", "sans-serif"],
       },
     },
   },

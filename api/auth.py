@@ -1,12 +1,15 @@
 """
 Auth module: signup, login, logout, me endpoints with JWT in httpOnly cookies.
+Includes Google OAuth 2.0 integration.
 """
 import os
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
+import httpx
 import psycopg
-from fastapi import APIRouter, HTTPException, Response, Cookie, Depends
+from authlib.integrations.starlette_client import OAuth
+from fastapi import APIRouter, HTTPException, Response, Cookie, Depends, Request
 from jose import jwt, JWTError
 from passlib.context import CryptContext
 from pydantic import BaseModel, EmailStr
@@ -17,9 +20,25 @@ SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-in-production")
 ALGORITHM = "HS256"
 TOKEN_EXPIRE_DAYS = 30
 DB_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/leadwa")
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
+GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "https://api.leadwa.co/auth/google/callback")
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# OAuth client
+oauth = OAuth()
+if GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET:
+    oauth.register(
+        name='google',
+        client_id=GOOGLE_CLIENT_ID,
+        client_secret=GOOGLE_CLIENT_SECRET,
+        server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+        client_kwargs={
+            'scope': 'openid email profile'
+        }
+    )
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -188,3 +207,96 @@ async def me(user_id: str = Depends(get_current_user_id)):
                 whatsapp_number=whatsapp_number,
                 created_at=created_at.isoformat()
             )
+
+
+# Google OAuth endpoints
+@router.get("/google/login")
+async def google_login(request: Request):
+    """Initiate Google OAuth flow."""
+    if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
+        raise HTTPException(status_code=503, detail="Google OAuth not configured")
+
+    redirect_uri = GOOGLE_REDIRECT_URI
+    return await oauth.google.authorize_redirect(request, redirect_uri)
+
+
+@router.get("/google/callback")
+async def google_callback(request: Request, response: Response):
+    """Handle Google OAuth callback."""
+    if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
+        raise HTTPException(status_code=503, detail="Google OAuth not configured")
+
+    try:
+        token = await oauth.google.authorize_access_token(request)
+        user_info = token.get('userinfo')
+
+        if not user_info or not user_info.get('email'):
+            raise HTTPException(status_code=400, detail="Failed to get user info from Google")
+
+        google_email = user_info['email']
+        google_id = user_info.get('sub')  # Google's unique user ID
+
+        with psycopg.connect(DB_URL) as conn:
+            with conn.cursor() as cur:
+                # Check if user exists by email
+                cur.execute(
+                    "SELECT id, email, business_name, whatsapp_number, created_at, google_id FROM users WHERE email = %s",
+                    (google_email,)
+                )
+                row = cur.fetchone()
+
+                if row:
+                    # User exists - update google_id if not set
+                    user_id = row[0]
+                    if not row[5] and google_id:
+                        cur.execute(
+                            "UPDATE users SET google_id = %s WHERE id = %s",
+                            (google_id, user_id)
+                        )
+                        conn.commit()
+
+                    user_data = {
+                        'id': str(user_id),
+                        'email': row[1],
+                        'business_name': row[2],
+                        'whatsapp_number': row[3],
+                        'created_at': row[4].isoformat()
+                    }
+                else:
+                    # Create new user with Google account
+                    cur.execute(
+                        """
+                        INSERT INTO users (email, password_hash, google_id)
+                        VALUES (%s, %s, %s)
+                        RETURNING id, email, business_name, whatsapp_number, created_at
+                        """,
+                        (google_email, '', google_id)
+                    )
+                    row = cur.fetchone()
+                    conn.commit()
+
+                    user_data = {
+                        'id': str(row[0]),
+                        'email': row[1],
+                        'business_name': row[2],
+                        'whatsapp_number': row[3],
+                        'created_at': row[4].isoformat()
+                    }
+
+                # Set JWT cookie
+                access_token = create_access_token(user_data['id'])
+                response.set_cookie(
+                    key="auth_token",
+                    value=access_token,
+                    httponly=True,
+                    max_age=TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
+                    samesite="lax"
+                )
+
+                # Redirect to dashboard
+                response.headers["Location"] = "https://leadwa.co/dashboard"
+                response.status_code = 302
+                return response
+
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Authentication failed: {str(e)}")
