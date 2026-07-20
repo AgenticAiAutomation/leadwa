@@ -35,6 +35,12 @@ RATE_LIMIT_WINDOW = 3600  # 1 hour in seconds
 
 router = APIRouter(prefix="/links", tags=["links"])
 
+# Simple in-memory rate limiter for slug checks
+# Format: {ip: [(timestamp, count), ...]}
+_slug_check_rate_limit: dict = defaultdict(list)
+SLUG_CHECK_MAX = 100  # Max checks per IP per minute
+SLUG_CHECK_WINDOW = 60  # 1 minute in seconds
+
 
 # Models
 class LinkCreate(BaseModel):
@@ -76,6 +82,15 @@ class AnonymousLinkCreate(BaseModel):
     dest_number: str
     prefill_text: Optional[str] = None
     title: Optional[str] = None
+    slug: Optional[str] = None
+
+    @field_validator("slug")
+    @classmethod
+    def validate_slug(cls, v):
+        if v is not None:
+            if not re.match(r"^[a-z0-9-]{3,32}$", v):
+                raise ValueError("Slug must be 3-32 chars, lowercase letters, numbers, and hyphens only")
+        return v
 
 
 class AnonymousLinkResponse(BaseModel):
@@ -108,6 +123,25 @@ def check_rate_limit(ip: str) -> bool:
     return True
 
 
+def check_slug_rate_limit(ip: str) -> bool:
+    """Check if IP has exceeded slug check rate limit. Returns True if allowed, False if rate limited."""
+    now = time()
+    cutoff = now - SLUG_CHECK_WINDOW
+
+    # Clean old entries for this IP
+    _slug_check_rate_limit[ip] = [(ts, count) for ts, count in _slug_check_rate_limit[ip] if ts > cutoff]
+
+    # Count total checks in the window
+    total = sum(count for _, count in _slug_check_rate_limit[ip])
+
+    if total >= SLUG_CHECK_MAX:
+        return False
+
+    # Add this request
+    _slug_check_rate_limit[ip].append((now, 1))
+    return True
+
+
 async def sync_to_kv(slug: str, link_id: str, dest_number: str, prefill_text: Optional[str], active: bool):
     """Push link data to Cloudflare KV."""
     if not all([CF_ACCOUNT_ID, CF_KV_NAMESPACE_ID, CF_API_TOKEN]):
@@ -135,6 +169,36 @@ async def sync_to_kv(slug: str, link_id: str, dest_number: str, prefill_text: Op
 
 
 # Endpoints
+@router.get("/check-slug")
+async def check_slug_availability(slug: str, request: Request):
+    """Check if a slug is available (works for both authenticated and anonymous slugs)."""
+    # Rate limiting
+    client_ip = request.client.host if request.client else "unknown"
+    if not check_slug_rate_limit(client_ip):
+        raise HTTPException(status_code=429, detail="Rate limit exceeded. Slow down.")
+
+    # Validate slug format
+    if not re.match(r"^[a-z0-9-]{3,32}$", slug):
+        return {"available": False, "reason": "invalid_format", "suggestions": []}
+
+    with psycopg.connect(DB_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT id FROM links WHERE slug = %s", (slug,))
+            exists = cur.fetchone() is not None
+
+            if exists:
+                # Generate 3 suggestions: append short random suffix
+                suggestions = []
+                for _ in range(3):
+                    suffix = "".join(random.choices("123456789", k=3))
+                    candidate = f"{slug}-{suffix}"
+                    if len(candidate) <= 32:
+                        suggestions.append(candidate)
+                return {"available": False, "reason": "taken", "suggestions": suggestions}
+            else:
+                return {"available": True, "reason": None, "suggestions": []}
+
+
 @router.post("/anonymous", response_model=AnonymousLinkResponse, status_code=201)
 async def create_anonymous_link(link: AnonymousLinkCreate, request: Request):
     """Create an anonymous link without authentication."""
@@ -145,17 +209,22 @@ async def create_anonymous_link(link: AnonymousLinkCreate, request: Request):
 
     with psycopg.connect(DB_URL) as conn:
         with conn.cursor() as cur:
-            # Generate unique slug
-            slug = None
-            for _ in range(10):
-                candidate = generate_slug()
-                cur.execute("SELECT id FROM links WHERE slug = %s", (candidate,))
-                if not cur.fetchone():
-                    slug = candidate
-                    break
-
+            # Generate or validate slug
+            slug = link.slug
             if not slug:
-                raise HTTPException(status_code=500, detail="Failed to generate unique slug")
+                # Generate unique slug
+                for _ in range(10):
+                    slug = generate_slug()
+                    cur.execute("SELECT id FROM links WHERE slug = %s", (slug,))
+                    if not cur.fetchone():
+                        break
+                else:
+                    raise HTTPException(status_code=500, detail="Failed to generate unique slug")
+            else:
+                # Check custom slug is unique
+                cur.execute("SELECT id FROM links WHERE slug = %s", (slug,))
+                if cur.fetchone():
+                    raise HTTPException(status_code=409, detail="Slug already taken")
 
             # Create link with user_id = NULL
             cur.execute(

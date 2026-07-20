@@ -33,6 +33,20 @@ export interface LinkStats {
   desktop_count: number;
 }
 
+export interface Lead {
+  id: string;
+  user_id: string;
+  source: 'link_click' | 'missed_call' | 'manual';
+  contact_number: string;
+  link_id?: string;
+  link_title?: string;
+  status: 'new' | 'contacted' | 'quoted' | 'won' | 'lost';
+  value_inr?: number;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface SignupData {
   email: string;
   password: string;
@@ -149,6 +163,44 @@ class ApiClient {
       credentials: 'include',
     });
     if (!res.ok) throw new Error('Failed to fetch stats');
+    return res.json();
+  }
+
+  async getLeads(source?: string, status?: string): Promise<Lead[]> {
+    const params = new URLSearchParams();
+    if (source) params.set('source', source);
+    if (status) params.set('status', status);
+    const query = params.toString() ? `?${params.toString()}` : '';
+
+    const res = await fetch(`${API_BASE}/leads${query}`, {
+      credentials: 'include',
+    });
+    if (!res.ok) throw new Error('Failed to fetch leads');
+    return res.json();
+  }
+
+  async createLead(data: { contact_number: string; notes?: string; link_id?: string }): Promise<Lead> {
+    const res = await fetch(`${API_BASE}/leads`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: 'Failed to create lead' }));
+      throw new Error(err.detail || 'Failed to create lead');
+    }
+    return res.json();
+  }
+
+  async updateLead(id: string, data: { status?: string; value_inr?: number; notes?: string }): Promise<Lead> {
+    const res = await fetch(`${API_BASE}/leads/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to update lead');
     return res.json();
   }
 }

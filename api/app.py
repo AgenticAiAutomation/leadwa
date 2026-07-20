@@ -5,6 +5,8 @@ from links import router as links_router
 from events import router as events_router
 from stats import router as stats_router
 from qr import router as qr_router
+from webhooks import router as webhooks_router
+from leads import router as leads_router
 
 
 def create_app() -> FastAPI:
@@ -30,5 +32,7 @@ def create_app() -> FastAPI:
     app.include_router(events_router)
     app.include_router(stats_router)
     app.include_router(qr_router)
+    app.include_router(webhooks_router)
+    app.include_router(leads_router)
 
     return app

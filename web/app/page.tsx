@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Check } from 'lucide-react';
 import ScrollNav from './components/ScrollNav';
 import FreeLinkGenerator from './components/FreeLinkGenerator';
 import AnimatedCounter from './components/AnimatedCounter';
@@ -231,19 +232,19 @@ export default function Home() {
                 <div className="text-4xl font-bold text-ink mb-6">₹0</div>
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-start">
-                    <span className="text-bottle-green mr-2">✓</span>
+                    <Check className="w-5 h-5 text-bottle-green mr-2" />
                     <span className="text-ink/80">Link generator</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="text-bottle-green mr-2">✓</span>
+                    <Check className="w-5 h-5 text-bottle-green mr-2" />
                     <span className="text-ink/80">QR code download</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="text-bottle-green mr-2">✓</span>
+                    <Check className="w-5 h-5 text-bottle-green mr-2" />
                     <span className="text-ink/80">Mini share page</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="text-bottle-green mr-2">✓</span>
+                    <Check className="w-5 h-5 text-bottle-green mr-2" />
                     <span className="text-ink/80">Click count</span>
                   </li>
                 </ul>
@@ -266,23 +267,23 @@ export default function Home() {
                 </div>
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-start">
-                    <span className="text-bottle-green mr-2">✓</span>
+                    <Check className="w-5 h-5 text-bottle-green mr-2" />
                     <span className="text-ink/80">Everything in Free</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="text-bottle-green mr-2">✓</span>
+                    <Check className="w-5 h-5 text-bottle-green mr-2" />
                     <span className="text-ink/80">Instant alerts</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="text-bottle-green mr-2">✓</span>
+                    <Check className="w-5 h-5 text-bottle-green mr-2" />
                     <span className="text-ink/80">Follow-up reminders</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="text-bottle-green mr-2">✓</span>
+                    <Check className="w-5 h-5 text-bottle-green mr-2" />
                     <span className="text-ink/80">Source tracking</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="text-bottle-green mr-2">✓</span>
+                    <Check className="w-5 h-5 text-bottle-green mr-2" />
                     <span className="text-ink/80">Inbox dashboard</span>
                   </li>
                 </ul>
@@ -302,23 +303,23 @@ export default function Home() {
                 </div>
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-start">
-                    <span className="text-bottle-green mr-2">✓</span>
+                    <Check className="w-5 h-5 text-bottle-green mr-2" />
                     <span className="text-ink/80">Everything in Basic</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="text-bottle-green mr-2">✓</span>
+                    <Check className="w-5 h-5 text-bottle-green mr-2" />
                     <span className="text-ink/80">API automation</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="text-bottle-green mr-2">✓</span>
+                    <Check className="w-5 h-5 text-bottle-green mr-2" />
                     <span className="text-ink/80">Drip campaigns</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="text-bottle-green mr-2">✓</span>
+                    <Check className="w-5 h-5 text-bottle-green mr-2" />
                     <span className="text-ink/80">Team features</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="text-bottle-green mr-2">✓</span>
+                    <Check className="w-5 h-5 text-bottle-green mr-2" />
                     <span className="text-ink/80">Priority support</span>
                   </li>
                 </ul>

@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import QRCode from 'qrcode';
+import { Check, X } from 'lucide-react';
 
 interface GeneratedLink {
   slug: string;
@@ -9,12 +10,23 @@ interface GeneratedLink {
   qrDataUrl: string;
   whatsappNumber: string;
   prefillMessage: string;
+  title: string;
   timestamp: number;
+}
+
+interface SlugCheckResponse {
+  available: boolean;
+  reason?: string;
+  suggestions?: string[];
 }
 
 export default function FreeLinkGenerator() {
   const [whatsappNumber, setWhatsappNumber] = useState('');
   const [prefillMessage, setPrefillMessage] = useState('');
+  const [title, setTitle] = useState('');
+  const [customSlug, setCustomSlug] = useState('');
+  const [slugCheckStatus, setSlugCheckStatus] = useState<'idle' | 'checking' | 'available' | 'unavailable'>('idle');
+  const [slugSuggestions, setSlugSuggestions] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedLink, setGeneratedLink] = useState<GeneratedLink | null>(null);
   const [error, setError] = useState('');
@@ -31,6 +43,50 @@ export default function FreeLinkGenerator() {
       }
     }
   }, []);
+
+  // Debounced slug availability check
+  const checkSlugAvailability = useCallback(async (slug: string) => {
+    if (!slug || slug.length < 3) {
+      setSlugCheckStatus('idle');
+      return;
+    }
+
+    // Validate format
+    if (!/^[a-z0-9-]{3,32}$/.test(slug)) {
+      setSlugCheckStatus('unavailable');
+      setSlugSuggestions([]);
+      return;
+    }
+
+    setSlugCheckStatus('checking');
+
+    try {
+      const response = await fetch(`https://api.leadwa.co/links/check-slug?slug=${encodeURIComponent(slug)}`);
+      const data: SlugCheckResponse = await response.json();
+
+      if (data.available) {
+        setSlugCheckStatus('available');
+        setSlugSuggestions([]);
+      } else {
+        setSlugCheckStatus('unavailable');
+        setSlugSuggestions(data.suggestions || []);
+      }
+    } catch {
+      setSlugCheckStatus('idle');
+    }
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (customSlug) {
+        checkSlugAvailability(customSlug);
+      } else {
+        setSlugCheckStatus('idle');
+      }
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [customSlug, checkSlugAvailability]);
 
   const handleGenerate = async () => {
     setError('');
@@ -54,7 +110,8 @@ export default function FreeLinkGenerator() {
         body: JSON.stringify({
           dest_number: cleaned,
           prefill_text: prefillMessage || undefined,
-          title: 'Free Link',
+          title: title || 'Free Link',
+          slug: customSlug || undefined,
         }),
       });
 
@@ -83,6 +140,7 @@ export default function FreeLinkGenerator() {
         qrDataUrl,
         whatsappNumber: cleaned,
         prefillMessage: prefillMessage || '',
+        title: title || 'Free Link',
         timestamp: Date.now(),
       };
 
@@ -115,6 +173,10 @@ export default function FreeLinkGenerator() {
     setGeneratedLink(null);
     setWhatsappNumber('');
     setPrefillMessage('');
+    setTitle('');
+    setCustomSlug('');
+    setSlugCheckStatus('idle');
+    setSlugSuggestions([]);
     localStorage.removeItem('leadwa_anonymous_link');
   };
 
@@ -177,6 +239,72 @@ export default function FreeLinkGenerator() {
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-semibold text-ink mb-2">
+            What should we call this link? <span className="text-terracotta">*</span>
+          </label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Instagram Bio Link"
+            className="w-full px-4 py-3 border border-ink/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-bottle-green transition-all"
+          />
+          <p className="text-xs text-ink/60 mt-1">A friendly name to remember this link</p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-ink mb-2">
+            Custom URL (optional)
+          </label>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-sm text-ink/60">leadwa.link/</span>
+            <input
+              type="text"
+              value={customSlug}
+              onChange={(e) => setCustomSlug(e.target.value.toLowerCase())}
+              placeholder="my-link"
+              pattern="[a-z0-9-]{3,32}"
+              className="flex-1 px-4 py-3 border border-ink/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-bottle-green transition-all"
+            />
+            {slugCheckStatus === 'checking' && (
+              <div className="w-5 h-5 border-2 border-bottle-green border-t-transparent rounded-full animate-spin"></div>
+            )}
+            {slugCheckStatus === 'available' && (
+              <Check className="w-5 h-5 text-bottle-green" />
+            )}
+            {slugCheckStatus === 'unavailable' && (
+              <X className="w-5 h-5 text-terracotta" />
+            )}
+          </div>
+          {slugCheckStatus === 'available' && (
+            <p className="text-sm text-bottle-green flex items-center gap-1">
+              <Check className="w-4 h-4" /> leadwa.link/{customSlug} is available
+            </p>
+          )}
+          {slugCheckStatus === 'unavailable' && (
+            <div>
+              <p className="text-sm text-terracotta flex items-center gap-1 mb-2">
+                <X className="w-4 h-4" /> Already taken, try another
+              </p>
+              {slugSuggestions.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {slugSuggestions.map((suggestion) => (
+                    <button
+                      key={suggestion}
+                      onClick={() => setCustomSlug(suggestion)}
+                      className="text-xs px-2 py-1 bg-paper border border-ink/20 rounded hover:bg-ink/5 transition-colors cursor-pointer"
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          <p className="text-xs text-ink/60 mt-1">3-32 chars, lowercase letters, numbers, hyphens only. Leave blank for random.</p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-ink mb-2">
             Your WhatsApp Number <span className="text-terracotta">*</span>
           </label>
           <input
@@ -184,7 +312,7 @@ export default function FreeLinkGenerator() {
             value={whatsappNumber}
             onChange={(e) => setWhatsappNumber(e.target.value)}
             placeholder="+91 98765 43210"
-            className="w-full px-4 py-3 border border-ink/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-bottle-green"
+            className="w-full px-4 py-3 border border-ink/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-bottle-green transition-all"
           />
         </div>
 
@@ -197,7 +325,7 @@ export default function FreeLinkGenerator() {
             onChange={(e) => setPrefillMessage(e.target.value)}
             placeholder="Hi, I'm interested in..."
             rows={3}
-            className="w-full px-4 py-3 border border-ink/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-bottle-green resize-none"
+            className="w-full px-4 py-3 border border-ink/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-bottle-green resize-none transition-all"
           />
         </div>
 
@@ -209,8 +337,8 @@ export default function FreeLinkGenerator() {
 
         <button
           onClick={handleGenerate}
-          disabled={isGenerating}
-          className="w-full bg-bottle-green text-white py-3 px-6 rounded-lg font-semibold hover:bg-bottle-green-light transition disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isGenerating || (customSlug && slugCheckStatus !== 'available')}
+          className="w-full bg-bottle-green text-white py-3 px-6 rounded-lg font-semibold hover:bg-bottle-green/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           {isGenerating ? 'Generating...' : 'Generate free link'}
         </button>
