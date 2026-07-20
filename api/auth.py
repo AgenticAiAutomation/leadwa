@@ -129,8 +129,10 @@ async def signup(req: SignupRequest, response: Response):
                 key="auth_token",
                 value=token,
                 httponly=True,
+                secure=True,
                 max_age=TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
-                samesite="lax"
+                samesite="lax",
+                domain=".leadwa.co"
             )
 
             return UserResponse(
@@ -164,8 +166,10 @@ async def login(req: LoginRequest, response: Response):
                 key="auth_token",
                 value=token,
                 httponly=True,
+                secure=True,
                 max_age=TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
-                samesite="lax"
+                samesite="lax",
+                domain=".leadwa.co"
             )
 
             return UserResponse(
@@ -180,7 +184,7 @@ async def login(req: LoginRequest, response: Response):
 @router.post("/logout")
 async def logout(response: Response):
     """Clear auth cookie."""
-    response.delete_cookie(key="auth_token")
+    response.delete_cookie(key="auth_token", domain=".leadwa.co")
     return {"ok": True}
 
 
@@ -289,8 +293,10 @@ async def google_callback(request: Request, response: Response):
                     key="auth_token",
                     value=access_token,
                     httponly=True,
+                    secure=True,
                     max_age=TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
-                    samesite="lax"
+                    samesite="lax",
+                    domain=".leadwa.co"
                 )
 
                 # Redirect to dashboard
