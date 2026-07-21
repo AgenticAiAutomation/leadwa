@@ -182,47 +182,47 @@ export default function FreeLinkGenerator() {
 
   if (generatedLink) {
     return (
-      <div className="bg-white p-6 rounded-lg shadow-lg border-2 border-bottle-green">
-        <h3 className="font-headline text-2xl text-bottle-green mb-4">Your free link is ready!</h3>
+      <div className="bg-white p-8 rounded-xl shadow-xl border-2 border-bottle-green">
+        <h3 className="font-headline text-3xl text-bottle-green mb-6">Your free link is ready!</h3>
 
-        <div className="mb-4 p-4 bg-paper rounded">
-          <div className="text-sm text-ink/60 mb-1">Short URL:</div>
-          <div className="font-mono text-lg text-ink break-all">{generatedLink.shortUrl}</div>
+        <div className="mb-6 p-5 bg-paper rounded-lg border border-ink/10">
+          <div className="text-sm font-medium text-ink/60 mb-2">Short URL:</div>
+          <div className="font-mono text-lg text-ink break-all font-semibold">{generatedLink.shortUrl}</div>
         </div>
 
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center mb-8">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={generatedLink.qrDataUrl} alt="QR Code" className="w-48 h-48" />
+          <img src={generatedLink.qrDataUrl} alt="QR Code" className="w-56 h-56 rounded-lg shadow-md" />
         </div>
 
         <div className="space-y-3">
           <button
             onClick={handleCopyLink}
-            className="w-full bg-bottle-green text-white py-3 px-6 rounded-lg font-semibold hover:bg-bottle-green-light transition"
+            className="w-full bg-bottle-green text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-bottle-green-light hover:shadow-lg active:scale-[0.98] transition-all duration-200"
           >
             Copy link
           </button>
           <button
             onClick={handleDownloadQR}
-            className="w-full bg-ink text-white py-3 px-6 rounded-lg font-semibold hover:bg-ink/80 transition"
+            className="w-full bg-ink text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-ink/80 hover:shadow-lg active:scale-[0.98] transition-all duration-200"
           >
             Download QR code
           </button>
           <button
             onClick={handleReset}
-            className="w-full bg-paper text-ink py-2 px-6 rounded-lg font-semibold border border-ink/20 hover:bg-ink/5 transition"
+            className="w-full bg-paper text-ink py-3 px-6 rounded-lg font-semibold border-2 border-ink/20 hover:bg-ink/5 hover:border-ink/30 active:scale-[0.98] transition-all duration-200"
           >
             Create another link
           </button>
         </div>
 
-        <div className="mt-6 p-4 bg-bottle-green/5 rounded border border-bottle-green/20">
-          <div className="text-sm text-ink/80 mb-2">
+        <div className="mt-8 p-5 bg-bottle-green/5 rounded-lg border border-bottle-green/20">
+          <div className="text-sm text-ink/80 mb-3">
             <strong>Want to track clicks and get follow-up alerts?</strong>
           </div>
           <a
             href="/login"
-            className="inline-block text-bottle-green font-semibold hover:underline"
+            className="inline-block text-bottle-green font-semibold hover:underline transition-all"
           >
             Save &amp; track this link →
           </a>
@@ -232,11 +232,11 @@ export default function FreeLinkGenerator() {
   }
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-lg">
-      <h3 className="font-headline text-2xl text-ink mb-4">Create your free WhatsApp link</h3>
-      <p className="text-ink/70 mb-6">No signup required. Get your link + QR code instantly.</p>
+    <div className="bg-white p-8 rounded-xl shadow-xl border border-ink/5">
+      <h3 className="font-headline text-2xl text-ink mb-2">Create your free WhatsApp link</h3>
+      <p className="text-ink/70 mb-8">No signup required. Get your link + QR code instantly.</p>
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div>
           <label className="block text-sm font-semibold text-ink mb-2">
             What should we call this link? <span className="text-terracotta">*</span>
@@ -338,7 +338,7 @@ export default function FreeLinkGenerator() {
         <button
           onClick={handleGenerate}
           disabled={isGenerating || !!(customSlug && slugCheckStatus !== 'available')}
-          className="w-full bg-bottle-green text-white py-3 px-6 rounded-lg font-semibold hover:bg-bottle-green/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          className="w-full bg-bottle-green text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-bottle-green/90 hover:shadow-lg active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:active:scale-100"
         >
           {isGenerating ? 'Generating...' : 'Generate free link'}
         </button>

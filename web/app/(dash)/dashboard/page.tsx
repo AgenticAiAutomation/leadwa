@@ -16,6 +16,7 @@ interface LinkWithStats extends Link {
 const SOURCE_TAGS = ['Instagram', 'Hoarding', 'JustDial', 'IndiaMART', 'Referral', 'Other'];
 
 type Tab = 'overview' | 'links' | 'leads' | 'missed-calls';
+type DateRange = '7d' | '30d' | 'all';
 
 const STATUS_OPTIONS = [
   { value: 'new', label: 'New', color: 'text-ink bg-paper' },
@@ -28,6 +29,7 @@ const STATUS_OPTIONS = [
 export default function DashboardPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>('overview');
+  const [dateRange, setDateRange] = useState<DateRange>('30d');
   const [links, setLinks] = useState<LinkWithStats[]>([]);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -252,20 +254,31 @@ export default function DashboardPage() {
     router.push('/login');
   };
 
-  const filteredLeads = (source?: 'missed_call' | 'link_click' | 'manual') =>
-    source ? leads.filter((l) => l.source === source) : leads;
+  const filterByDateRange = (items: Lead[]) => {
+    if (dateRange === 'all') return items;
+    const now = new Date();
+    const days = dateRange === '7d' ? 7 : 30;
+    const cutoff = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+    return items.filter((item) => new Date(item.created_at) >= cutoff);
+  };
 
-  // Overview metrics
-  const totalLeads = leads.length;
-  const wonLeads = leads.filter((l) => l.status === 'won').length;
-  const totalValue = leads
+  const filteredLeads = (source?: 'missed_call' | 'link_click' | 'manual') => {
+    const sourceFiltered = source ? leads.filter((l) => l.source === source) : leads;
+    return filterByDateRange(sourceFiltered);
+  };
+
+  // Overview metrics (respecting date range)
+  const dateFilteredLeads = filterByDateRange(leads);
+  const totalLeads = dateFilteredLeads.length;
+  const wonLeads = dateFilteredLeads.filter((l) => l.status === 'won').length;
+  const totalValue = dateFilteredLeads
     .filter((l) => l.status === 'won')
     .reduce((sum, l) => sum + (l.value_inr || 0), 0);
 
   const leadsBySource = {
-    link_click: leads.filter((l) => l.source === 'link_click').length,
-    missed_call: leads.filter((l) => l.source === 'missed_call').length,
-    manual: leads.filter((l) => l.source === 'manual').length,
+    link_click: dateFilteredLeads.filter((l) => l.source === 'link_click').length,
+    missed_call: dateFilteredLeads.filter((l) => l.source === 'missed_call').length,
+    manual: dateFilteredLeads.filter((l) => l.source === 'manual').length,
   };
 
   if (loading) {
@@ -279,12 +292,12 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-paper">
       {/* Header */}
-      <header className="bg-white border-b border-ink/10">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="font-headline text-2xl text-ink">Leadwa</h1>
+      <header className="bg-white border-b border-ink/10 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 py-5 flex justify-between items-center">
+          <h1 className="font-headline text-3xl text-ink">Leadwa</h1>
           <button
             onClick={handleLogout}
-            className="text-sm text-ink/60 hover:text-ink transition-colors"
+            className="text-sm font-medium text-ink/60 hover:text-ink px-4 py-2 rounded-lg hover:bg-paper transition-all"
           >
             Logout
           </button>
@@ -292,9 +305,9 @@ export default function DashboardPage() {
       </header>
 
       {/* Tabs */}
-      <div className="bg-white border-b border-ink/10">
+      <div className="bg-white border-b border-ink/10 shadow-sm">
         <div className="max-w-7xl mx-auto px-4">
-          <nav className="flex gap-8">
+          <nav className="flex gap-1">
             {[
               { key: 'overview' as Tab, label: 'Overview', icon: TrendingUp },
               { key: 'links' as Tab, label: 'Links', icon: LinkIcon },
@@ -304,13 +317,14 @@ export default function DashboardPage() {
               <button
                 key={key}
                 onClick={() => setActiveTab(key)}
-                className={`py-4 px-2 border-b-2 transition-all flex items-center gap-2 ${
+                className={`py-4 px-6 border-b-3 transition-all flex items-center gap-2 font-medium relative ${
                   activeTab === key
-                    ? 'border-bottle-green text-bottle-green'
-                    : 'border-transparent text-ink/60 hover:text-ink'
+                    ? 'text-bottle-green border-b-bottle-green'
+                    : 'text-ink/60 hover:text-ink hover:bg-paper/50 border-b-transparent'
                 }`}
+                style={{ borderBottomWidth: activeTab === key ? '3px' : '0' }}
               >
-                <Icon className="w-4 h-4" />
+                <Icon className="w-5 h-5" />
                 {label}
               </button>
             ))}
@@ -319,6 +333,31 @@ export default function DashboardPage() {
       </div>
 
       <main className="max-w-7xl mx-auto px-4 py-6">
+        {/* Date Range Filter */}
+        {(activeTab === 'overview' || activeTab === 'leads' || activeTab === 'missed-calls') && (
+          <div className="mb-6 flex justify-end">
+            <div className="inline-flex items-center gap-2 bg-white rounded-lg border border-ink/10 p-1">
+              {[
+                { key: '7d' as DateRange, label: 'Last 7 days' },
+                { key: '30d' as DateRange, label: 'Last 30 days' },
+                { key: 'all' as DateRange, label: 'All time' },
+              ].map(({ key, label }) => (
+                <button
+                  key={key}
+                  onClick={() => setDateRange(key)}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                    dateRange === key
+                      ? 'bg-bottle-green text-white shadow-sm'
+                      : 'text-ink/60 hover:text-ink hover:bg-paper'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Overview Tab */}
         {activeTab === 'overview' && (
           <div className="space-y-6">
