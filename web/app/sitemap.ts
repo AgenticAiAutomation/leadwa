@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { countries } from '@/content/countries';
+import { questions } from '@/content/questions';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseRoutes = [
@@ -21,6 +22,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly' as const,
       priority: 0.5,
     },
+    {
+      url: 'https://leadwa.co/answers',
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    },
   ];
 
   const countryRoutes = countries.map((country) => ({
@@ -30,5 +37,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.9,
   }));
 
-  return [...baseRoutes, ...countryRoutes];
+  const answerRoutes = questions.map((question) => ({
+    url: `https://leadwa.co/answers/${question.slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }));
+
+  return [...baseRoutes, ...countryRoutes, ...answerRoutes];
 }
