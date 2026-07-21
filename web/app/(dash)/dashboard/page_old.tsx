@@ -457,7 +457,7 @@ export default function DashboardPage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={!editingLink && formData.slug && slugCheckStatus !== 'available'}
+                  disabled={!!(!editingLink && formData.slug && slugCheckStatus !== 'available')}
                   className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   {editingLink ? 'Update' : 'Create'}

@@ -337,7 +337,7 @@ export default function FreeLinkGenerator() {
 
         <button
           onClick={handleGenerate}
-          disabled={isGenerating || (customSlug && slugCheckStatus !== 'available')}
+          disabled={isGenerating || !!(customSlug && slugCheckStatus !== 'available')}
           className="w-full bg-bottle-green text-white py-3 px-6 rounded-lg font-semibold hover:bg-bottle-green/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           {isGenerating ? 'Generating...' : 'Generate free link'}
