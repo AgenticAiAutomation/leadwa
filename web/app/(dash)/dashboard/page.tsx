@@ -307,7 +307,7 @@ export default function DashboardPage() {
       {/* Tabs */}
       <div className="bg-white border-b border-ink/10 shadow-sm">
         <div className="max-w-7xl mx-auto px-4">
-          <nav className="flex gap-1">
+          <nav className="flex gap-1 overflow-x-auto scrollbar-hide">
             {[
               { key: 'overview' as Tab, label: 'Overview', icon: TrendingUp },
               { key: 'links' as Tab, label: 'Links', icon: LinkIcon },
@@ -317,15 +317,16 @@ export default function DashboardPage() {
               <button
                 key={key}
                 onClick={() => setActiveTab(key)}
-                className={`py-4 px-6 border-b-3 transition-all flex items-center gap-2 font-medium relative ${
+                className={`py-4 px-4 sm:px-6 border-b-3 transition-all flex items-center gap-2 font-medium relative whitespace-nowrap ${
                   activeTab === key
                     ? 'text-bottle-green border-b-bottle-green'
                     : 'text-ink/60 hover:text-ink hover:bg-paper/50 border-b-transparent'
                 }`}
                 style={{ borderBottomWidth: activeTab === key ? '3px' : '0' }}
               >
-                <Icon className="w-5 h-5" />
-                {label}
+                <Icon className="w-5 h-5 flex-shrink-0" />
+                <span className="hidden sm:inline">{label}</span>
+                <span className="sm:hidden text-xs">{label.split(' ')[0]}</span>
               </button>
             ))}
           </nav>
@@ -754,87 +755,173 @@ function LeadsTable({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-ink/10">
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-paper border-b border-ink/10">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-ink/70 uppercase">Contact</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-ink/70 uppercase">Source</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-ink/70 uppercase">Link</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-ink/70 uppercase">Status</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-ink/70 uppercase">Value (₹)</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-ink/70 uppercase">Created</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-ink/10">
-            {leads.map((lead) => {
-              const statusOption = STATUS_OPTIONS.find((opt) => opt.value === lead.status);
-              return (
-                <tr key={lead.id} className="hover:bg-paper/50 transition-colors">
-                  <td className="px-4 py-3 text-sm text-ink">{lead.contact_number}</td>
-                  <td className="px-4 py-3 text-sm">
-                    <span className="inline-flex items-center gap-1 text-ink/60">
-                      {lead.source === 'link_click' && <LinkIcon className="w-3 h-3" />}
-                      {lead.source === 'missed_call' && <Phone className="w-3 h-3" />}
-                      {lead.source === 'manual' && <UserPlus className="w-3 h-3" />}
-                      {lead.source.replace('_', ' ')}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-ink/60">{lead.link_title || '—'}</td>
-                  <td className="px-4 py-3 text-sm">
-                    <select
-                      value={lead.status}
-                      onChange={(e) => onUpdateStatus(lead.id, e.target.value)}
-                      className={`px-3 py-1 rounded-full text-xs font-semibold border-0 focus:outline-none focus:ring-2 focus:ring-bottle-green transition-all cursor-pointer ${statusOption?.color}`}
-                    >
-                      {STATUS_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="px-4 py-3 text-sm">
-                    {editingValue === lead.id ? (
-                      <input
-                        type="number"
-                        value={tempValue}
-                        onChange={(e) => setTempValue(e.target.value)}
-                        onBlur={() => {
-                          if (tempValue) onUpdateValue(lead.id, parseInt(tempValue, 10));
-                          setEditingValue(null);
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
+    <>
+      {/* Desktop Table */}
+      <div className="hidden md:block bg-white rounded-lg shadow-sm overflow-hidden border border-ink/10">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[600px]">
+            <thead className="bg-paper border-b border-ink/10">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-ink/70 uppercase">Contact</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-ink/70 uppercase">Source</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-ink/70 uppercase">Link</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-ink/70 uppercase">Status</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-ink/70 uppercase">Value (₹)</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-ink/70 uppercase">Created</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-ink/10">
+              {leads.map((lead) => {
+                const statusOption = STATUS_OPTIONS.find((opt) => opt.value === lead.status);
+                return (
+                  <tr key={lead.id} className="hover:bg-paper/50 transition-colors">
+                    <td className="px-4 py-3 text-sm text-ink">{lead.contact_number}</td>
+                    <td className="px-4 py-3 text-sm">
+                      <span className="inline-flex items-center gap-1 text-ink/60">
+                        {lead.source === 'link_click' && <LinkIcon className="w-3 h-3" />}
+                        {lead.source === 'missed_call' && <Phone className="w-3 h-3" />}
+                        {lead.source === 'manual' && <UserPlus className="w-3 h-3" />}
+                        {lead.source.replace('_', ' ')}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-ink/60">{lead.link_title || '—'}</td>
+                    <td className="px-4 py-3 text-sm">
+                      <select
+                        value={lead.status}
+                        onChange={(e) => onUpdateStatus(lead.id, e.target.value)}
+                        className={`px-3 py-1 rounded-full text-xs font-semibold border-0 focus:outline-none focus:ring-2 focus:ring-bottle-green transition-all cursor-pointer ${statusOption?.color}`}
+                      >
+                        {STATUS_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="px-4 py-3 text-sm">
+                      {editingValue === lead.id ? (
+                        <input
+                          type="number"
+                          value={tempValue}
+                          onChange={(e) => setTempValue(e.target.value)}
+                          onBlur={() => {
                             if (tempValue) onUpdateValue(lead.id, parseInt(tempValue, 10));
                             setEditingValue(null);
-                          }
-                        }}
-                        autoFocus
-                        className="w-24 px-2 py-1 border border-bottle-green rounded focus:outline-none focus:ring-2 focus:ring-bottle-green"
-                      />
-                    ) : (
-                      <button
-                        onClick={() => {
-                          setEditingValue(lead.id);
-                          setTempValue(lead.value_inr?.toString() || '');
-                        }}
-                        className="text-ink hover:text-bottle-green transition-colors cursor-pointer"
-                      >
-                        {lead.value_inr ? `₹${lead.value_inr.toLocaleString('en-IN')}` : '—'}
-                      </button>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-ink/60">
-                    {new Date(lead.created_at).toLocaleDateString('en-IN')}
-                  </td>
-                </tr>
-              );
-            })}
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              if (tempValue) onUpdateValue(lead.id, parseInt(tempValue, 10));
+                              setEditingValue(null);
+                            }
+                          }}
+                          autoFocus
+                          className="w-24 px-2 py-1 border border-bottle-green rounded focus:outline-none focus:ring-2 focus:ring-bottle-green"
+                        />
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setEditingValue(lead.id);
+                            setTempValue(lead.value_inr?.toString() || '');
+                          }}
+                          className="text-ink hover:text-bottle-green transition-colors cursor-pointer"
+                        >
+                          {lead.value_inr ? `₹${lead.value_inr.toLocaleString('en-IN')}` : '—'}
+                        </button>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-ink/60">
+                      {new Date(lead.created_at).toLocaleDateString('en-IN')}
+                    </td>
+                  </tr>
+                );
+              })}
           </tbody>
         </table>
       </div>
     </div>
+
+    {/* Mobile Card Layout */}
+    <div className="md:hidden space-y-4">
+      {leads.map((lead) => {
+        const statusOption = STATUS_OPTIONS.find((opt) => opt.value === lead.status);
+        return (
+          <div
+            key={lead.id}
+            className="bg-white rounded-lg shadow-sm border border-ink/10 p-4 space-y-3"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-ink mb-1">{lead.contact_number}</div>
+                <div className="flex items-center gap-2 text-sm text-ink/60">
+                  {lead.source === 'link_click' && <LinkIcon className="w-3 h-3 flex-shrink-0" />}
+                  {lead.source === 'missed_call' && <Phone className="w-3 h-3 flex-shrink-0" />}
+                  {lead.source === 'manual' && <UserPlus className="w-3 h-3 flex-shrink-0" />}
+                  <span className="truncate">{lead.source.replace('_', ' ')}</span>
+                </div>
+              </div>
+              <div className="text-xs text-ink/60 whitespace-nowrap">
+                {new Date(lead.created_at).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}
+              </div>
+            </div>
+
+            {lead.link_title && (
+              <div className="text-sm text-ink/70 truncate">
+                <span className="font-medium">Link:</span> {lead.link_title}
+              </div>
+            )}
+
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex-1 min-w-[140px]">
+                <select
+                  value={lead.status}
+                  onChange={(e) => onUpdateStatus(lead.id, e.target.value)}
+                  className={`w-full px-3 py-2 rounded-lg text-xs font-semibold border-0 focus:outline-none focus:ring-2 focus:ring-bottle-green transition-all cursor-pointer ${statusOption?.color}`}
+                >
+                  {STATUS_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex-shrink-0">
+                {editingValue === lead.id ? (
+                  <input
+                    type="number"
+                    value={tempValue}
+                    onChange={(e) => setTempValue(e.target.value)}
+                    onBlur={() => {
+                      if (tempValue) onUpdateValue(lead.id, parseInt(tempValue, 10));
+                      setEditingValue(null);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        if (tempValue) onUpdateValue(lead.id, parseInt(tempValue, 10));
+                        setEditingValue(null);
+                      }
+                    }}
+                    autoFocus
+                    placeholder="Value (₹)"
+                    className="w-28 px-3 py-2 border border-bottle-green rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-bottle-green"
+                  />
+                ) : (
+                  <button
+                    onClick={() => {
+                      setEditingValue(lead.id);
+                      setTempValue(lead.value_inr?.toString() || '');
+                    }}
+                    className="px-3 py-2 bg-paper border border-ink/20 rounded-lg text-sm font-medium text-ink hover:border-bottle-green hover:text-bottle-green transition-all cursor-pointer"
+                  >
+                    {lead.value_inr ? `₹${lead.value_inr.toLocaleString('en-IN')}` : 'Add value'}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </>
   );
 }
