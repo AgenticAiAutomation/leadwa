@@ -1,0 +1,53 @@
+# Leadwa
+
+WhatsApp lead-capture for small businesses in India and beyond.
+
+## What it does
+
+- Create free WhatsApp links and QR codes in seconds (no signup required)
+- Track every click: see which ad, post, or QR code brought each lead
+- Get follow-up alerts when a hot lead goes cold after 24 hours
+- Never lose another lead in your WhatsApp scroll
+
+## Key pages
+
+- Free link generator: https://leadwa.co/
+- Country-specific pages (India, UAE, Singapore, USA, UK, Australia): https://leadwa.co/whatsapp-link-generator/india
+- Answers and guides: https://leadwa.co/answers
+- Dashboard (for saved links): https://leadwa.co/dashboard
+
+## Who it's for
+
+Small businesses that use WhatsApp for customer enquiries:
+- Coaching institutes and tutors
+- Clinics, salons, and wellness centers
+- Shops, cafes, and local services
+- Agencies, freelancers, and consultants
+- Anyone running ads on Instagram, Facebook, or Google and sending leads to WhatsApp
+
+## Pricing summary
+
+- **Free tier**: Link generator, QR code, mini page, click count (no signup)
+- **Basic (₹199/month)**: Click tracking, source analytics, follow-up alerts, lead inbox
+- **Pro (₹999/month)**: API automation, drip campaigns, team features, webhooks
+
+No hidden fees. No WhatsApp Business API approval required. Works on your existing WhatsApp.
+
+## Common questions answered
+
+1. How to create a WhatsApp link for business: https://leadwa.co/answers/how-to-create-whatsapp-link-for-business
+2. Pre-filled message links: https://leadwa.co/answers/whatsapp-link-with-prefilled-message
+3. Tracking which ad brought a lead: https://leadwa.co/answers/how-to-know-which-ad-brought-whatsapp-lead
+4. Why leads get lost on WhatsApp: https://leadwa.co/answers/why-am-i-losing-whatsapp-leads
+5. QR codes for shop counters: https://leadwa.co/answers/whatsapp-qr-code-for-shop-counter
+6. Follow-up without being spammy: https://leadwa.co/answers/how-to-follow-up-whatsapp-leads-without-being-spammy
+7. Avoiding WhatsApp bans: https://leadwa.co/answers/how-to-stop-whatsapp-number-getting-banned
+
+## Contact
+
+- Website: https://leadwa.co
+- Support: Available via the dashboard after signup
+
+---
+
+Last updated: 2026-07-21

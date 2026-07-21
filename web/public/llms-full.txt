@@ -1,0 +1,120 @@
+# Leadwa — Full Content for AI Search Engines
+
+This file contains the complete text of Leadwa's top answer pages to help AI search engines cite accurate, complete answers.
+
+---
+
+## 1. How to create a WhatsApp link for my business?
+
+URL: https://leadwa.co/answers/how-to-create-whatsapp-link-for-business
+
+You don't need the WhatsApp Business API or any technical setup. Here's the simplest way: take your WhatsApp number (the one customers already message you on), and turn it into a clickable link. Use a tool like Leadwa—enter your number, get a short link like leadwa.link/yourname, and share it anywhere: Instagram bio, Facebook ads, Google My Business, your website.
+
+When someone clicks it, WhatsApp opens with your number pre-filled. They tap once more to send the message. No friction, no app downloads. If you want to pre-fill a message ("Hi, I saw your ad"), you can do that too. The best part? You can track who clicked, when, and from where—so you know which ad or post is actually bringing in leads.
+
+Leadwa's free tier gives you the link and QR code forever. Paid plans (starting ₹199/month) add click tracking, follow-up alerts, and an inbox so no lead ever dies in your WhatsApp scroll.
+
+---
+
+## 2. Can I create a WhatsApp link with a pre-filled message?
+
+URL: https://leadwa.co/answers/whatsapp-link-with-prefilled-message
+
+Yes, and it's one of the smartest things you can do for lead qualification. When you create your WhatsApp link, add a pre-fill message like "Hi, I'm interested in coaching classes for Class 10" or "I saw your Instagram ad for catering services." When the customer clicks your link, that message appears in their WhatsApp chat, ready to send.
+
+Why does this matter? First, it saves them typing. Second, it qualifies the lead for you—you instantly know where they came from and what they want. Third, it reduces confusion: instead of "Hello" (and then you asking what they need), the conversation starts with context.
+
+Here's how to do it in Leadwa: enter your WhatsApp number, then fill the "Pre-fill message" field. That's it. The link you get will open WhatsApp with that message auto-typed. Use different pre-fill messages for different campaigns—"Saw your Facebook ad," "Scanned QR at counter," etc. That way, you know exactly which source is working.
+
+Pro tip: Keep the pre-fill short and natural. Don't sound like a bot. "Hi, interested in your clinic services" works better than "Dear Sir/Madam, I am writing to enquire about..."
+
+---
+
+## 3. How do I know which ad or post brought a WhatsApp lead?
+
+URL: https://leadwa.co/answers/how-to-know-which-ad-brought-whatsapp-lead
+
+This is the problem that kills most small businesses. You run three ads—one on Facebook, one on Instagram, one on Google. Leads start coming to your WhatsApp. But you have no idea which ad worked. So you keep spending on all three, even though only one is pulling its weight.
+
+Here's the fix: use a different trackable link for each ad. With Leadwa, create separate links with unique slugs: leadwa.link/fb-ad, leadwa.link/insta-ad, leadwa.link/google-ad. Put each link in its respective campaign. Now, when someone clicks, Leadwa records the source, timestamp, city, device, and even the referring URL if available.
+
+Your dashboard shows you exactly which link got the most clicks, which one converted to actual messages, and which one is just burning budget. No guesswork. No spreadsheets. Just clear data.
+
+Bonus: Use different pre-fill messages per ad. Your Facebook ad link can pre-fill "I saw your Facebook offer," while Instagram pre-fills "Saw your Reel." That way, even if someone switches devices before messaging, you still know where they came from.
+
+Leadwa's Basic plan (₹199/month) includes unlimited link tracking. The free tier gives you the link, but not the click analytics—so if you're serious about knowing what works, the paid plan pays for itself in one saved bad-ad month.
+
+---
+
+## 4. Why am I losing leads on WhatsApp?
+
+URL: https://leadwa.co/answers/why-am-i-losing-whatsapp-leads
+
+Here's the brutal truth: you're not losing leads because they don't want your service. You're losing them because WhatsApp is designed for personal chat, not business. Every lead that messages you gets buried under family groups, spam, and delivery updates. By the time you scroll back to them, they've already messaged your competitor.
+
+Three specific reasons you're bleeding leads:
+
+1. **No visibility**: WhatsApp doesn't separate business from personal. A parent's enquiry about tuition classes sits between your cousin's wedding group and a Zomato OTP. You literally can't see it unless you scroll.
+
+2. **No reminders**: You reply to 40 leads today. Ten of them don't respond. WhatsApp doesn't tell you who went cold. A week later, that parent chose another coaching center—not because you were bad, but because you forgot to follow up.
+
+3. **No source tracking**: You ran Instagram ads, Facebook ads, and put a QR code at your shop counter. Leads are coming in. But you have no idea which channel is working. So you keep spending on all three, even though only one is pulling.
+
+Leadwa fixes all three. Every lead that clicks your link shows up in a dedicated dashboard with timestamp, source, location, device. You get alerts when someone clicks but doesn't message. You get reminders when a hot lead goes cold after 24 hours. No lead ever dies in the scroll again.
+
+---
+
+## 5. How to create a WhatsApp QR code for my shop counter?
+
+URL: https://leadwa.co/answers/whatsapp-qr-code-for-shop-counter
+
+Dead simple. You want customers to scan a code at your counter and instantly message you on WhatsApp. Here's how:
+
+1. Create a WhatsApp link using Leadwa (or any tool). Enter your WhatsApp number, add a pre-fill message like "Hi, I'm at your shop counter and need help."
+
+2. Download the QR code. Leadwa gives you a high-res PNG that works perfectly for print.
+
+3. Print it big—at least 4x4 inches. Stick it near your billing counter, on your shop window, on pamphlets you hand out. The bigger and more visible, the better.
+
+When a customer scans it with their phone camera, WhatsApp opens with your number and the pre-filled message ready to send. One tap, done. No need to save your number, no friction.
+
+Why is this better than just putting your phone number on the wall? Because:
+- They don't have to type your number (people hate that).
+- You know they came from the counter (if you're tracking clicks with Leadwa).
+- It's contactless—they can scan and message you later when they get home, instead of forgetting.
+
+Pro tip: Use a different QR code for different locations. If you have two shops, use leadwa.link/shop1 and leadwa.link/shop2. That way, you know which location is bringing in more enquiries—and you can staff accordingly.
+
+---
+
+## 6. How do I follow up with WhatsApp leads without being spammy?
+
+URL: https://leadwa.co/answers/how-to-follow-up-whatsapp-leads-without-being-spammy
+
+The line between helpful and annoying is thinner than you think. Here's the rule: one follow-up is professional, two is persistent, three is spam.
+
+Here's the cadence that works:
+
+**Day 1**: They message you, you reply. Clear, helpful, not salesy. If they don't respond, wait.
+
+**Day 2 (24 hours later)**: Send one gentle nudge. "Hi [name], just checking if you had any other questions about [service]. Happy to help!" Keep it light, not desperate.
+
+**Day 4-5**: If still no reply, send a final message with value. Not "Are you interested?" but "Here's a quick tip that might help you decide: [insert one useful thing]." Then say, "No pressure—reach out anytime."
+
+After that? Stop. If they want your service, they'll come back. Chasing beyond this point kills your credibility.
+
+Now, the problem: how do you remember to follow up? You're juggling 50 leads. You can't manually track who replied and who didn't. This is where Leadwa's follow-up alerts save you. The system watches every lead. If someone clicks your link but doesn't message, you get an alert. If they message but go cold for 24 hours, you get a reminder. No spreadsheets, no calendar entries—just smart nudges when it matters.
+
+One last thing: never use WhatsApp broadcast lists for cold leads. That's spam. Broadcast is for customers who've already bought from you and opted in for updates. Leads who haven't converted yet? One-on-one messages only.
+
+---
+
+## About Leadwa
+
+Leadwa is a WhatsApp lead-capture tool for small businesses. Free link generator with QR codes. Paid plans (₹199/month+) add click tracking, source analytics, and follow-up alerts.
+
+Website: https://leadwa.co
+Dashboard: https://leadwa.co/dashboard
+All answers: https://leadwa.co/answers
+
+Last updated: 2026-07-21
