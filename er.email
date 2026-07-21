@@ -1,0 +1,51 @@
+[33mcommit 39310a69b8de0a0bf80ff548ef7f69bd7b755215[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: cockroach-party <social@cockroachparty.org>
+Date:   Mon Jul 20 20:26:20 2026 +0530
+
+    feat: slug availability UX, missed-call bridge, outcome ledger, design polish
+    
+    WEEK2: Full feature set implementation
+    
+    Part A - Slug Availability UX:
+    - Add GET /links/check-slug endpoint with rate limiting (100/min per IP)
+    - Live slug checker with 400ms debounce in FreeLinkGenerator
+    - Show green check when available, red X with 3 auto-suggestions when taken
+    - Add Title field: friendly nickname for links in dashboard
+    - Custom slug input on both free-link and dashboard create forms
+    
+    Part B - Missed-Call Bridge:
+    - New DB tables: missed_calls, leads (source of truth for outcomes)
+    - POST /webhooks/missed-call endpoint with shared-secret auth
+    - Pluggable SMS interface (stub/msg91/twilio), sends auto-reply with default link
+    - Missed Calls tab in dashboard showing source=missed_call leads
+    - MacroDroid setup docs in api/README.md with step-by-step instructions
+    
+    Part C - Outcome-Based Lead Ledger:
+    - Leads API: GET /leads (filter by source/status), POST, PATCH
+    - Dashboard Leads tab with inline-editable status dropdown and ₹ value
+    - Overview tab with total leads, won count, total value, leads-by-source bar chart
+    - Status: new → contacted → quoted → won/lost
+    
+    Part D - Design Polish:
+    - Replace ALL emoji icons with lucide-react (Check, X, Copy, etc.)
+    - Hover states with 150-300ms transitions on all interactive elements
+    - cursor-pointer on buttons and clickable elements
+    - Focus rings (ring-2 ring-bottle-green) on form inputs
+    - Tab-based dashboard navigation (Overview, Links, Leads, Missed Calls)
+    - Consistent honest-ledger design system: paper #FAF7F2, ink #1C1917, terracotta/bottle-green
+    
+    Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+
+ api/README.md                            | 123 [32m+++++[m
+ api/app.py                               |   4 [32m+[m
+ api/leads.py                             | 215 [32m+++++++++[m
+ api/links.py                             |  89 [32m+++[m[31m-[m
+ api/migrations/004_week2_leads.sql       |  34 [32m++[m
+ api/webhooks.py                          | 138 [32m++++++[m
+ tickets/WEEK2-TICKET.md                  |  68 [32m+++[m
+ web/app/(dash)/dashboard/page.tsx        | 788 [32m+++++++++++++++++++++++[m[31m--------[m
+ web/app/(dash)/dashboard/page_old.tsx    | 472 [32m++++++++++++++++++[m
+ web/app/components/FreeLinkGenerator.tsx | 140 [32m+++++[m[31m-[m
+ web/app/page.tsx                         |  29 [32m+[m[31m-[m
+ web/lib/api.ts                           |  52 [32m++[m
+ 12 files changed, 1937 insertions(+), 215 deletions(-)
